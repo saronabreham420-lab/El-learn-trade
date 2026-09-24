@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-950 text-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forex Trading Master Curriculum</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            900: '#14532d',
+                            accent: '#3b82f6'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+        .glass-card { background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
+    </style>
+</head>
+<body class="h-full font-sans antialiased bg-slate-950 text-slate-100 flex flex-col overflow-hidden" x-data="forexApp()">
+
+    <header class="h-16 border-b border-slate-800 bg-slate-900/90 backdrop-blur-md px-4 lg:px-6 flex items-center justify-between z-30 shrink-0">
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-cyan-500 flex items-center justify-center text-slate-950 font-black text-xl shadow-lg shadow-emerald-500/20">
+                FX
+            </div>
+            <div>
+                <h1 class="font-bold text-base md:text-lg tracking-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">
+                    Forex Trading Master Curriculum
+                </h1>
+                <p class="text-xs text-slate-400 hidden sm:block">20 Modules · 100 Chapters · Beginner to Professional</p>
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-3">
+            <!-- Overall Progress Bar -->
+            <div class="hidden md:flex flex-col items-end mr-2">
+                <div class="flex items-center space-x-2 text-xs text-slate-300">
+                    <span class="font-medium text-emerald-400" x-text="completedCount + '/200 Chapters'"></span>
+                    <span class="text-slate-500">|</span>
+                    <span class="font-semibold" x-text="progressPercentage + '% Mastered'"></span>
+                </div>
+                <div class="w-36 h-2 bg-slate-800 rounded-full overflow-hidden mt-1 border border-slate-700/50">
+                    <div class="h-full bg-gradient-to-r from-emerald-500 to-cyan-400 transition-all duration-500" :style="'width: ' + progressPercentage + '%'"></div>
+                </div>
+            </div>
+
+            <!-- Tab Switchers -->
+            <nav class="flex bg-slate-800/80 p-1 rounded-xl border border-slate-700/60 text-xs font-medium">
+                <button @click="activeTab = 'curriculum'" :class="activeTab === 'curriculum' ? 'bg-emerald-500 text-slate-950 font-semibold shadow-md' : 'text-slate-300 hover:text-white'" class="px-3 py-1.5 rounded-lg transition-all flex items-center space-x-1.5">
+                    <i class="fa-solid fa-book-open"></i>
+                    <span class="hidden sm:inline">Curriculum</span>
+                </button>
+                <button @click="activeTab = 'tools'" :class="activeTab === 'tools' ? 'bg-emerald-500 text-slate-950 font-semibold shadow-md' : 'text-slate-300 hover:text-white'" class="px-3 py-1.5 rounded-lg transition-all flex items-center space-x-1.5">
+                    <i class="fa-solid fa-calculator"></i>
+                    <span class="hidden sm:inline">Trading Tools</span>
+                </button>
+                <button @click="activeTab = 'assessments'" :class="activeTab === 'assessments' ? 'bg-emerald-500 text-slate-950 font-semibold shadow-md' : 'text-slate-300 hover:text-white'" class="px-3 py-1.5 rounded-lg transition-all flex items-center space-x-1.5">
+                    <i class="fa-solid fa-award"></i>
+                    <span class="hidden sm:inline">Exams & Capstone</span>
+                </button>
+                <button @click="activeTab = 'glossary'" :class="activeTab === 'glossary' ? 'bg-emerald-500 text-slate-950 font-semibold shadow-md' : 'text-slate-300 hover:text-white'" class="px-3 py-1.5 rounded-lg transition-all flex items-center space-x-1.5">
+                    <i class="fa-solid fa-spell-check"></i>
+                    <span class="hidden sm:inline">A-Z Glossary</span>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <div class="flex-1 flex overflow-hidden relative">
+
+        <!-- TAB 1: CURRICULUM EXPLORER & LESSON READER -->
+        <div x-show="activeTab === 'curriculum'" class="flex-1 flex w-full h-full overflow-hidden">
+            <!-- Sidebar: Module & Chapter Navigation -->
+            <aside class="w-full lg:w-96 border-r border-slate-800 bg-slate-900/60 flex flex-col h-full shrink-0" :class="mobileSidebarOpen ? 'block' : 'hidden lg:flex'">
+                <!-- Filters & Search -->
+                <div class="p-4 border-b border-slate-800 space-y-3 bg-slate-900">
+                    <div class="relative">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm"></i>
+                        <input type="text" x-model="searchQuery" placeholder="Search chapters, topics, concepts..." class="w-full bg-slate-950 border border-slate-800 rounded-lg pl-9 pr-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500">
+                    </div>
+                    <div class="flex items-center justify-between gap-2">
+                        <select x-model="levelFilter" class="bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-300 focus:outline-none focus:border-emerald-500">
+                            <option value="All">All Levels</option>
+                            <option value="Beginner">Beginner</option>
+                            <option value="Intermediate">Intermediate</option>
+                            <option value="Advanced">Advanced</option>
+                            <option value="Professional">Professional</option>
+                        </select>
+                        <button @click="toggleAllModules()" class="text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1 font-medium">
+                            <i class="fa-solid" :class="allExpanded ? 'fa-compress' : 'fa-expand'"></i>
+                            <span x-text="allExpanded ? 'Collapse All' : 'Expand All'"></span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Module Tree -->
+                <div class="flex-1 overflow-y-auto p-3 space-y-2">
+                    <template x-for="mod in filteredModules" :key="mod.id">
+                        <div class="border border-slate-800/80 rounded-xl overflow-hidden bg-slate-900/40">
+                            <!-- Module Header -->
+                            <button @click="mod.open = !mod.open" class="w-full p-3 flex items-center justify-between text-left hover:bg-slate-800/50 transition-colors">
+                                <div class="flex items-center space-x-3 pr-2">
+                                    <div class="w-7 h-7 rounded-lg bg-slate-800 text-emerald-400 font-bold text-xs flex items-center justify-center shrink-0 border border-slate-700" x-text="mod.id"></div>
+                                    <div>
+                                        <div class="text-xs font-semibold text-slate-200 line-clamp-1" x-text="mod.title"></div>
+                                        <div class="text-[10px] text-slate-400" x-text="mod.chapters.length + ' Chapters • Level: ' + mod.level"></div>
+                                    </div>
+                                </div>
+                                <i class="fa-solid text-slate-500 text-xs transition-transform" :class="mod.open ? 'fa-chevron-down' : 'fa-chevron-right'"></i>
+                            </button>
+
+                            <!-- Chapters List -->
+                            <div x-show="mod.open" class="border-t border-slate-800/60 bg-slate-950/60 divide-y divide-slate-800/30">
+                                <template x-for="ch in mod.chapters" :key="ch.num">
+                                    <div @click="selectChapter(ch)" class="p-2.5 pl-4 flex items-start space-x-3 cursor-pointer hover:bg-slate-800/40 transition-colors group" :class="selectedChapter && selectedChapter.num === ch.num ? 'bg-emerald-950/30 border-l-2 border-emerald-500' : ''">
+                                        <!-- Checkbox for completion -->
+                                        <input type="checkbox" :checked="completedChapters.includes(ch.num)" @click.stop="toggleChapterComplete(ch.num)" class="mt-0.5 rounded border-slate-700 text-emerald-500 focus:ring-emerald-500 bg-slate-900 cursor-pointer">
+                                        <div class="flex-1 min-w-0">
+                                            <div class="flex items-center justify-between">
+                                                <span class="text-xs font-medium text-slate-300 group-hover:text-emerald-400 transition-colors" x-text="'Ch ' + ch.num + ': ' + ch.title"></span>
+                                            </div>
+                                            <p class="text-[11px] text-slate-400 line-clamp-1 mt-0.5" x-text="ch.desc"></p>
+                                            <div class="flex items-center gap-2 mt-1">
+                                                <span class="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400" x-text="ch.level"></span>
+                                                <span class="text-[9px] text-slate-400" x-text="'Prereq: ' + ch.prereq"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </aside>
+
+            <!-- Main Content Area: Lesson Viewer -->
+            <main class="flex-1 flex flex-col h-full overflow-hidden bg-slate-950">
+                <!-- Mobile Module Toggle Bar -->
+                <div class="lg:hidden p-3 border-b border-slate-800 bg-slate-900 flex items-center justify-between">
+                    <button @click="mobileSidebarOpen = !mobileSidebarOpen" class="text-xs text-emerald-400 flex items-center gap-2 bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700">
+                        <i class="fa-solid fa-list-ul"></i>
+                        <span x-text="mobileSidebarOpen ? 'Hide Chapter List' : 'Show All Chapters'"></span>
+                    </button>
+                    <span class="text-xs text-slate-400" x-text="selectedChapter ? 'Ch ' + selectedChapter.num : 'Select Chapter'"></span>
+                </div>
+
+                <div class="flex-1 overflow-y-auto p-4 md:p-8 lg:p-10 max-w-5xl mx-auto w-full">
+                    <template x-if="selectedChapter">
+                        <div class="space-y-8">
+                            <!-- Chapter Header Banner -->
+                            <div class="glass-card p-6 md:p-8 rounded-2xl relative overflow-hidden border border-slate-800 shadow-2xl">
+                                <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                                <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+                                    <div class="flex items-center space-x-2">
+                                        <span class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" x-text="'Chapter ' + selectedChapter.num"></span>
+                                        <span class="px-3 py-1 rounded-full text-xs font-medium bg-slate-800 text-slate-300" x-text="selectedChapter.level"></span>
+                                        <span class="text-xs text-slate-400" x-text="'Module ' + selectedChapter.moduleId + ': ' + selectedChapter.moduleTitle"></span>
+                                    </div>
+                                    <button @click="toggleChapterComplete(selectedChapter.num)" :class="completedChapters.includes(selectedChapter.num) ? 'bg-emerald-500 text-slate-950' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'" class="px-4 py-2 rounded-xl text-xs font-semibold flex items-center space-x-2 transition-all">
+                                        <i class="fa-solid" :class="completedChapters.includes(selectedChapter.num) ? 'fa-check-circle' : 'fa-circle'"></i>
+                                        <span x-text="completedChapters.includes(selectedChapter.num) ? 'Completed' : 'Mark as Complete'"></span>
+                                    </button>
+                                </div>
+                                <h2 class="text-2xl md:text-3xl font-extrabold text-white tracking-tight" x-text="selectedChapter.title"></h2>
+                                <p class="text-slate-300 text-sm md:text-base mt-2 leading-relaxed" x-text="selectedChapter.desc"></p>
+                                <div class="mt-4 pt-4 border-t border-slate-800 flex items-center text-xs text-slate-400 space-x-4">
+                                    <div><strong class="text-slate-300">Prerequisites:</strong> <span x-text="selectedChapter.prereq"></span></div>
+                                    <div><strong class="text-slate-300">Estimated Reading Time:</strong> 12 mins</div>
+                                </div>
+                            </div>
+
+                            <!-- 15-Part Structured Master Content Section -->
+                            <div class="space-y-8 text-slate-200">
+
+                                <!-- 1. Core Concept Breakdown -->
+                                <section class="glass-card p-6 rounded-2xl border border-slate-800">
+                                    <h3 class="text-lg font-bold text-emerald-400 mb-3 flex items-center gap-2">
+                                        <i class="fa-solid fa-lightbulb"></i> 1. Core Concept Breakdown
+                                    </h3>
+                                    <p class="text-slate-300 text-sm leading-relaxed" x-text="getChapterLesson(selectedChapter).coreConcept"></p>
+                                </section>
+
+                                <!-- 2. Why It Matters -->
+                                <section class="glass-card p-6 rounded-2xl border border-slate-800">
+                                    <h3 class="text-lg font-bold text-cyan-400 mb-3 flex items-center gap-2">
+                                        <i class="fa-solid fa-bullseye"></i> 2. Strategic Importance & Market Role
+                                    </h3>
+                                    <p class="text-slate-300 text-sm leading-relaxed" x-text="getChapterLesson(selectedChapter).whyItMatters"></p>
+                                </section>
+
+                                <!-- 3. Key Formulas & Mathematics (If applicable) -->
+                                <section class="glass-card p-6 rounded-2xl border border-slate-800 bg-slate-900/80">
+                                    <h3 class="text-lg font-bold text-amber-400 mb-3 flex items-center gap-2">
+                                        <i class="fa-solid fa-square-root-variable"></i> 3. Quantitative Formulation & Math Mechanics
+                                    </h3>
+                                    <div class="p-4 bg-slate-950 rounded-xl border border-slate-800 font-mono text-xs text-emerald-300 space-y-2">
+                                        <p x-text="getChapterLesson(selectedChapter).formula"></p>
+                                    </div>
+                                </section>
+
+                                <!-- 4. Numerical / Practical Trade Example -->
+                                <section class="glass-card p-6 rounded-2xl border border-slate-800">
+                                    <h3 class="text-lg font-bold text-purple-400 mb-3 flex items-center gap-2">
+                                        <i class="fa-solid fa-chart-line"></i> 4. Step-by-Step Market Walkthrough
+                                    </h3>
+                                    <div class="bg-slate-950/70 p-4 rounded-xl border border-slate-800 text-sm space-y-3">
+                                        <p class="text-slate-300" x-text="getChapterLesson(selectedChapter).example"></p>
+                                    </div>
+                                </section>
+
+                                <!-- 5. Institutional Context vs Retail Misconceptions -->
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="p-5 rounded-2xl bg-emerald-950/20 border border-emerald-500/30">
+                                        <h4 class="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                                            <i class="fa-solid fa-building-columns"></i> Institutional Perspective
+                                        </h4>
+                                        <p class="text-xs text-slate-300 leading-relaxed" x-text="getChapterLesson(selectedChapter).institutionalView"></p>
+                                    </div>
+                                    <div class="p-5 rounded-2xl bg-rose-950/20 border border-rose-500/30">
+                                        <h4 class="text-xs font-bold text-rose-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                                            <i class="fa-solid fa-triangle-exclamation"></i> Retail Beginner Pitfall
+                                        </h4>
+                                        <p class="text-xs text-slate-300 leading-relaxed" x-text="getChapterLesson(selectedChapter).misconception"></p>
+                                    </div>
+                                </div>
+
+                                <!-- 6. Execution Rules & Action Plan -->
+                                <section class="glass-card p-6 rounded-2xl border border-slate-800">
+                                    <h3 class="text-lg font-bold text-emerald-400 mb-3 flex items-center gap-2">
+                                        <i class="fa-solid fa-list-check"></i> 6. Operational Execution Rules
+                                    </h3>
+                                    <ul class="list-disc pl-5 space-y-2 text-sm text-slate-300">
+                                        <template x-for="rule in getChapterLesson(selectedChapter).executionRules" :key="rule">
+                                            <li x-text="rule"></li>
+                                        </template>
+                                    </ul>
+                                </section>
+
+                                <!-- 7. Knowledge Check Quiz -->
+                                <section class="glass-card p-6 rounded-2xl border border-slate-800 bg-slate-900/90">
+                                    <h3 class="text-lg font-bold text-amber-400 mb-4 flex items-center gap-2">
+                                        <i class="fa-solid fa-circle-question"></i> 7. Self-Assessment Knowledge Check
+                                    </h3>
+                                    <div class="space-y-4">
+                                        <p class="text-sm font-semibold text-slate-200" x-text="getChapterLesson(selectedChapter).quiz.question"></p>
+                                        <div class="space-y-2">
+                                            <template x-for="(option, idx) in getChapterLesson(selectedChapter).quiz.options" :key="idx">
+                                                <button @click="checkQuizAnswer(idx)" :class="quizAnswered === idx ? (idx === getChapterLesson(selectedChapter).quiz.correct ? 'bg-emerald-600 text-white' : 'bg-rose-600 text-white') : 'bg-slate-800 hover:bg-slate-700 text-slate-200'" class="w-full text-left p-3 rounded-xl text-xs font-medium transition-all flex items-center justify-between">
+                                                    <span x-text="option"></span>
+                                                    <i x-show="quizAnswered === idx" class="fa-solid" :class="idx === getChapterLesson(selectedChapter).quiz.correct ? 'fa-check' : 'fa-xmark'"></i>
+                                                </button>
+                                            </template>
+                                        </div>
+                                        <div x-show="quizAnswered !== null" class="p-3 rounded-lg bg-slate-950 border border-slate-800 text-xs text-slate-300 mt-2">
+                                            <span class="font-bold text-emerald-400">Explanation: </span>
+                                            <span x-text="getChapterLesson(selectedChapter).quiz.explanation"></span>
+                                        </div>
+                                    </div>
+                                </section>
+
+                            </div>
+
+                            <!-- Navigation Controls -->
+                            <div class="flex items-center justify-between pt-6 border-t border-slate-800">
+                                <button @click="navigateChapter(-1)" :disabled="selectedChapter.num === 1" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2">
+                                    <i class="fa-solid fa-arrow-left"></i> Previous Chapter
+                                </button>
+                                <span class="text-xs text-slate-400" x-text="selectedChapter.num + ' / 200'"></span>
+                                <button @click="navigateChapter(1)" :disabled="selectedChapter.num === 200" class="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs flex items-center gap-2">
+                                    Next Chapter <i class="fa-solid fa-arrow-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </template>
+                    <template x-if="!selectedChapter">
+                        <div class="h-full flex flex-col items-center justify-center text-center p-12">
+                            <i class="fa-solid fa-book-bookmark text-5xl text-slate-700 mb-4"></i>
+                            <h3 class="text-xl font-bold text-slate-300">Select a Chapter to Begin</h3>
+                            <p class="text-sm text-slate-500 max-w-sm mt-2">Choose any chapter from the curriculum sidebar to dive deep into lessons, calculations, and execution frameworks.</p>
+                        </div>
+                    </template>
+                </div>
+            </main>
+        </div>
+
+        <!-- TAB 2: INTERACTIVE TRADING TOOLS & CALCULATORS -->
+        <div x-show="activeTab === 'tools'" class="flex-1 overflow-y-auto p-4 md:p-8 max-w-7xl mx-auto w-full">
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold text-white">Forex Quantitative Tools & Live Simulators</h2>
+                <p class="text-slate-400 text-sm mt-1">Essential interactive calculators for position sizing, risk management, and market sessions.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Tool 1: Position Size Calculator -->
+                <div class="glass-card p-6 rounded-2xl border border-slate-800 space-y-4">
+                    <div class="flex items-center space-x-3 text-emerald-400 font-bold text-lg">
+                        <i class="fa-solid fa-calculator"></i>
+                        <h3>1. Position Size & Lot Calculator</h3>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1">Account Balance ($)</label>
+                            <input type="number" x-model.number="calc.balance" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-xs text-slate-100 font-mono">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1">Risk Percentage (%)</label>
+                            <input type="number" step="0.1" x-model.number="calc.riskPercent" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-xs text-slate-100 font-mono">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1">Stop Loss (Pips)</label>
+                            <input type="number" x-model.number="calc.stopPips" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-xs text-slate-100 font-mono">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1">Currency Pair Type</label>
+                            <select x-model="calc.pairType" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-xs text-slate-100">
+                                <option value="standard">Standard Direct (EUR/USD, GBP/USD) [$10/pip standard]</option>
+                                <option value="jpy">JPY Cross (USD/JPY, EUR/JPY) [Approx $9.1/pip]</option>
+                            </select>
+                        </div>
+                    </div>
+                    <!-- Calculation Results -->
+                    <div class="p-4 bg-slate-950 rounded-xl border border-slate-800/80 space-y-2 font-mono text-xs">
+                        <div class="flex justify-between text-slate-400">
+                            <span>Monetary Risk Amount:</span>
+                            <span class="text-rose-400 font-bold" x-text="'$' + (calc.balance * (calc.riskPercent / 100)).toFixed(2)"></span>
+                        </div>
+                        <div class="flex justify-between text-slate-400">
+                            <span>Standard Lots (100,000 units):</span>
+                            <span class="text-emerald-400 font-bold" x-text="calculateLotSize().standard"></span>
+                        </div>
+                        <div class="flex justify-between text-slate-400">
+                            <span>Mini Lots (10,000 units):</span>
+                            <span class="text-emerald-300" x-text="calculateLotSize().mini"></span>
+                        </div>
+                        <div class="flex justify-between text-slate-400">
+                            <span>Micro Lots (1,000 units):</span>
+                            <span class="text-emerald-300" x-text="calculateLotSize().micro"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tool 2: Global FX Session World Clock -->
+                <div class="glass-card p-6 rounded-2xl border border-slate-800 space-y-4">
+                    <div class="flex items-center space-x-3 text-cyan-400 font-bold text-lg">
+                        <i class="fa-solid fa-clock"></i>
+                        <h3>2. Global FX Sessions & Overlaps</h3>
+                    </div>
+                    <p class="text-xs text-slate-400">Forex is open 24 hours. Highest volatility occurs during London / New York overlaps.</p>
+                    
+                    <div class="space-y-3">
+                        <template x-for="session in sessions" :key="session.name">
+                            <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-3 h-3 rounded-full" :class="session.active ? 'bg-emerald-500 animate-pulse' : 'bg-slate-700'"></div>
+                                    <div>
+                                        <div class="text-xs font-bold text-slate-200" x-text="session.name"></div>
+                                        <div class="text-[10px] text-slate-500" x-text="session.hours"></div>
+                                    </div>
+                                </div>
+                                <span class="px-2.5 py-1 rounded-md text-[10px] font-semibold" :class="session.active ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-slate-800 text-slate-500'" x-text="session.active ? 'OPEN (Active Volatility)' : 'CLOSED'"></span>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- Tool 3: Expectancy & Win Rate Simulator -->
+                <div class="glass-card p-6 rounded-2xl border border-slate-800 space-y-4 lg:col-span-2">
+                    <div class="flex items-center space-x-3 text-amber-400 font-bold text-lg">
+                        <i class="fa-solid fa-chart-pie"></i>
+                        <h3>3. System Expectancy & Mathematical Edge Calculator</h3>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1">Win Rate (%)</label>
+                            <input type="number" x-model.number="expectancy.winRate" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-xs text-slate-100 font-mono">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1">Average Win ($ or R)</label>
+                            <input type="number" x-model.number="expectancy.avgWin" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-xs text-slate-100 font-mono">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1">Average Loss ($ or R)</label>
+                            <input type="number" x-model.number="expectancy.avgLoss" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-xs text-slate-100 font-mono">
+                        </div>
+                    </div>
+                    
+                    <div class="p-5 bg-slate-950 rounded-xl border border-slate-800 grid grid-cols-1 md:grid-cols-3 gap-4 text-center font-mono">
+                        <div class="p-3 bg-slate-900/60 rounded-lg border border-slate-800">
+                            <div class="text-[10px] text-slate-500 uppercase">Expected Value / Trade</div>
+                            <div class="text-lg font-bold mt-1" :class="calculateExpectancy() > 0 ? 'text-emerald-400' : 'text-rose-400'" x-text="calculateExpectancy().toFixed(2)"></div>
+                        </div>
+                        <div class="p-3 bg-slate-900/60 rounded-lg border border-slate-800">
+                            <div class="text-[10px] text-slate-500 uppercase">Profit Factor</div>
+                            <div class="text-lg font-bold text-cyan-400 mt-1" x-text="calculateProfitFactor()"></div>
+                        </div>
+                        <div class="p-3 bg-slate-900/60 rounded-lg border border-slate-800">
+                            <div class="text-[10px] text-slate-500 uppercase">Break-Even Win Rate Needed</div>
+                            <div class="text-lg font-bold text-amber-400 mt-1" x-text="calculateBreakEvenWinRate() + '%'"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: EXAMS & CAPSTONE PROJECTS -->
+        <div x-show="activeTab === 'assessments'" class="flex-1 overflow-y-auto p-4 md:p-8 max-w-6xl mx-auto w-full">
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold text-white">Master Assessments & Capstone Projects</h2>
+                <p class="text-slate-400 text-sm mt-1">Rigorous testing system to evaluate theoretical knowledge and practical execution readiness.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Cumulative Exams -->
+                <div class="glass-card p-6 rounded-2xl border border-slate-800 space-y-4">
+                    <h3 class="text-lg font-bold text-emerald-400 flex items-center gap-2">
+                        <i class="fa-solid fa-file-signature"></i> Cumulative Knowledge Exams
+                    </h3>
+                    <div class="space-y-3">
+                        <template x-for="exam in cumulativeExams" :key="exam.title">
+                            <div class="p-4 bg-slate-950 rounded-xl border border-slate-800 space-y-2">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs font-bold text-slate-200" x-text="exam.title"></span>
+                                    <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400" x-text="exam.coverage"></span>
+                                </div>
+                                <p class="text-xs text-slate-400" x-text="exam.desc"></p>
+                                <button class="w-full mt-2 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-medium transition-colors">
+                                    Start Practice Exam
+                                </button>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- Capstone Projects -->
+                <div class="glass-card p-6 rounded-2xl border border-slate-800 space-y-4">
+                    <h3 class="text-lg font-bold text-cyan-400 flex items-center gap-2">
+                        <i class="fa-solid fa-diagram-project"></i> Practical Capstone Projects
+                    </h3>
+                    <div class="space-y-3">
+                        <template x-for="cap in capstones" :key="cap.title">
+                            <div class="p-4 bg-slate-950 rounded-xl border border-slate-800 space-y-2">
+                                <div class="text-xs font-bold text-slate-200" x-text="cap.title"></div>
+                                <p class="text-xs text-slate-400" x-text="cap.desc"></p>
+                                <div class="flex items-center justify-between pt-2 border-t border-slate-800/60">
+                                    <span class="text-[10px] text-slate-500" x-text="'Requirement: ' + cap.req"></span>
+                                    <span class="text-[10px] text-amber-400 font-semibold" x-text="cap.deliverable"></span>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 4: A-Z MASTER GLOSSARY -->
+        <div x-show="activeTab === 'glossary'" class="flex-1 overflow-y-auto p-4 md:p-8 max-w-6xl mx-auto w-full">
+            <div class="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-white">A–Z Master Forex Glossary</h2>
+                    <p class="text-slate-400 text-sm mt-1">Complete reference terms across market structure, order types, macroeconomics, and risk.</p>
+                </div>
+                <div class="relative w-full md:w-72">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+                    <input type="text" x-model="glossarySearch" placeholder="Filter terms..." class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-emerald-500">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <template x-for="item in filteredGlossary" :key="item.term">
+                    <div class="p-4 bg-slate-900/60 rounded-xl border border-slate-800/80 hover:border-slate-700 transition-all space-y-1">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-emerald-400 font-mono" x-text="item.term"></span>
+                            <span class="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 uppercase" x-text="item.cat"></span>
+                        </div>
+                        <p class="text-xs text-slate-300 leading-relaxed" x-text="item.def"></p>
+                    </div>
+                </template>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function forexApp() {
+            return {
+                activeTab: 'curriculum',
+                searchQuery: '',
+                levelFilter: 'All',
+                selectedChapter: null,
+                completedChapters: JSON.parse(localStorage.getItem('fx_completed_chapters') || '[]'),
+                mobileSidebarOpen: false,
+                allExpanded: false,
+                quizAnswered: null,
+                glossarySearch: '',
+
+                // Calculator state
+                calc: {
+                    balance: 10000,
+                    riskPercent: 1.0,
+                    stopPips: 20,
+                    pairType: 'standard'
+                },
+
+                // Expectancy state
+                expectancy: {
+                    winRate: 50,
+                    avgWin: 300,
+                    avgLoss: 150
+                },
+
+                // Sessions
+                sessions: [
+                    { name: 'Sydney Session', hours: '22:00 - 07:00 UTC', active: false },
+                    { name: 'Tokyo Session (Asian)', hours: '00:00 - 09:00 UTC', active: false },
+                    { name: 'London Session (European)', hours: '08:00 - 17:00 UTC', active: true },
+                    { name: 'New York Session (American)', hours: '13:00 - 22:00 UTC', active: true }
+                ],
+
+                // 20 Modules & 200 Chapters Data
+                modules: [
+                    { id: 1, title: 'Absolute Beginner Orientation', level: 'Beginner', open: true, chapters: [
+                        { num: 1, title: 'What Is Forex?', desc: 'The big idea of foreign exchange and what you are actually trading.', level: 'Beginner', prereq: 'None', moduleId: 1, moduleTitle: 'Absolute Beginner Orientation' },
+                        { num: 2, title: 'Why Currencies Exist and Why They Are Exchanged', desc: 'International trade, travel, investment, payments, and currency conversion.', level: 'Beginner', prereq: '1', moduleId: 1, moduleTitle: 'Absolute Beginner Orientation' },
+                        { num: 3, title: 'Why Currency Prices Change', desc: 'Supply, demand, expectations, interest rates, flows, and uncertainty.', level: 'Beginner', prereq: '1–2', moduleId: 1, moduleTitle: 'Absolute Beginner Orientation' },
+                        { num: 4, title: 'The History of Foreign Exchange', desc: 'From fixed exchange rates to the modern global FX market.', level: 'Beginner', prereq: '1–3', moduleId: 1, moduleTitle: 'Absolute Beginner Orientation' },
+                        { num: 5, title: 'Fixed vs Floating Exchange Rates', desc: 'How exchange-rate systems work and why floating currencies move.', level: 'Beginner', prereq: '4', moduleId: 1, moduleTitle: 'Absolute Beginner Orientation' },
+                        { num: 6, title: 'Who Participates in Forex?', desc: 'Central banks, banks, corporations, funds, brokers, and retail traders.', level: 'Beginner', prereq: '1', moduleId: 1, moduleTitle: 'Absolute Beginner Orientation' },
+                        { num: 7, title: 'Speculation, Hedging, Investing, and Trading', desc: 'Different reasons people interact with currencies.', level: 'Beginner', prereq: '1–6', moduleId: 1, moduleTitle: 'Absolute Beginner Orientation' },
+                        { num: 8, title: 'Trading vs Gambling', desc: 'Probability, edge, risk, and why trading is not automatically gambling.', level: 'Beginner', prereq: '3, 7', moduleId: 1, moduleTitle: 'Absolute Beginner Orientation' },
+                        { num: 9, title: 'Why Forex Is Difficult', desc: 'Competition, uncertainty, leverage, execution, and behavioral challenges.', level: 'Beginner', prereq: '1–8', moduleId: 1, moduleTitle: 'Absolute Beginner Orientation' },
+                        { num: 10, title: 'Forex Myths and Beginner Traps', desc: 'Common misconceptions about signals, indicators, win rates, and easy money.', level: 'Beginner', prereq: '1–9', moduleId: 1, moduleTitle: 'Absolute Beginner Orientation' }
+                    ]},
+                    { id: 2, title: 'Forex Terminology & Account Fundamentals', level: 'Beginner', open: false, chapters: [
+                        { num: 11, title: 'Currency Pairs', desc: 'How currencies are quoted against one another.', level: 'Beginner', prereq: '1–3', moduleId: 2, moduleTitle: 'Forex Terminology & Account Fundamentals' },
+                        { num: 12, title: 'Base and Quote Currency', desc: 'Understanding the two sides of every currency pair.', level: 'Beginner', prereq: '11', moduleId: 2, moduleTitle: 'Forex Terminology & Account Fundamentals' },
+                        { num: 13, title: 'Major, Minor, Cross, and Exotic Pairs', desc: 'How currency pairs are categorized.', level: 'Beginner', prereq: '11–12', moduleId: 2, moduleTitle: 'Forex Terminology & Account Fundamentals' },
+                        { num: 14, title: 'The Major Currencies', desc: 'USD, EUR, GBP, JPY, CHF, CAD, AUD, and NZD.', level: 'Beginner', prereq: '13', moduleId: 2, moduleTitle: 'Forex Terminology & Account Fundamentals' },
+                        { num: 15, title: 'Exchange Rates and Price Quotes', desc: 'How to read and interpret a currency price.', level: 'Beginner', prereq: '11–14', moduleId: 2, moduleTitle: 'Forex Terminology & Account Fundamentals' },
+                        { num: 16, title: 'Pip, Pipette, Point, and Tick', desc: 'The basic units used to describe price movement.', level: 'Beginner', prereq: '15', moduleId: 2, moduleTitle: 'Forex Terminology & Account Fundamentals' },
+                        { num: 17, title: 'Lots and Position Size', desc: 'Standard, mini, micro, and nano lots.', level: 'Beginner', prereq: '16', moduleId: 2, moduleTitle: 'Forex Terminology & Account Fundamentals' },
+                        { num: 18, title: 'Bid, Ask, and Spread', desc: 'The mechanics of buying and selling at quoted prices.', level: 'Beginner', prereq: '15–17', moduleId: 2, moduleTitle: 'Forex Terminology & Account Fundamentals' },
+                        { num: 19, title: 'Commission and Trading Costs', desc: 'Direct and indirect costs of executing trades.', level: 'Beginner', prereq: '18', moduleId: 2, moduleTitle: 'Forex Terminology & Account Fundamentals' },
+                        { num: 20, title: 'Swap, Rollover, and Overnight Financing', desc: 'Why holding positions overnight can create a financing cost or credit.', level: 'Beginner', prereq: '19', moduleId: 2, moduleTitle: 'Forex Terminology & Account Fundamentals' },
+                        { num: 21, title: 'Balance, Equity, and Floating P/L', desc: 'Understanding account values while positions are open.', level: 'Beginner', prereq: '17–20', moduleId: 2, moduleTitle: 'Forex Terminology & Account Fundamentals' },
+                        { num: 22, title: 'Margin, Free Margin, and Used Margin', desc: 'How collateral works in leveraged trading.', level: 'Beginner', prereq: '17, 21', moduleId: 2, moduleTitle: 'Forex Terminology & Account Fundamentals' },
+                        { num: 23, title: 'Leverage, Margin Call, and Stop-Out', desc: 'The relationship between exposure, collateral, and forced closure.', level: 'Beginner', prereq: '22', moduleId: 2, moduleTitle: 'Forex Terminology & Account Fundamentals' },
+                        { num: 24, title: 'Liquidity, Volatility, Drawdown, and Slippage', desc: 'Core concepts describing market conditions and trading outcomes.', level: 'Beginner', prereq: '18–23', moduleId: 2, moduleTitle: 'Forex Terminology & Account Fundamentals' }
+                    ]},
+                    { id: 3, title: 'How a Forex Trade Works', level: 'Beginner', open: false, chapters: [
+                        { num: 25, title: 'Anatomy of a Complete Trade', desc: 'From selecting a pair to closing the position.', level: 'Beginner', prereq: '11–24', moduleId: 3, moduleTitle: 'How a Forex Trade Works' },
+                        { num: 26, title: 'Buying a Currency Pair', desc: 'What a long position actually means.', level: 'Beginner', prereq: '25', moduleId: 3, moduleTitle: 'How a Forex Trade Works' },
+                        { num: 27, title: 'Selling a Currency Pair', desc: 'What a short position actually means.', level: 'Beginner', prereq: '25–26', moduleId: 3, moduleTitle: 'How a Forex Trade Works' },
+                        { num: 28, title: 'Stop-Loss and Take-Profit', desc: 'How predefined exits work and what they cannot guarantee.', level: 'Beginner', prereq: '25–27', moduleId: 3, moduleTitle: 'How a Forex Trade Works' },
+                        { num: 29, title: 'Position Size and Risk', desc: 'Connecting account size, stop distance, and monetary risk.', level: 'Beginner', prereq: '17, 25–28', moduleId: 3, moduleTitle: 'How a Forex Trade Works' },
+                        { num: 30, title: 'Complete $100–$10,000 Trade Examples', desc: 'Numerical trade walkthroughs across different account sizes.', level: 'Beginner', prereq: '29', moduleId: 3, moduleTitle: 'How a Forex Trade Works' }
+                    ]},
+                    { id: 4, title: 'Brokers & Trading Infrastructure', level: 'Intermediate', open: false, chapters: [
+                        { num: 31, title: 'What a Forex Broker Does', desc: 'The broker\'s role in retail FX.', level: 'Beginner', prereq: '25', moduleId: 4, moduleTitle: 'Brokers & Infrastructure' },
+                        { num: 32, title: 'OTC Forex and Market Structure', desc: 'Why spot FX differs from a centralized stock exchange.', level: 'Intermediate', prereq: '31', moduleId: 4, moduleTitle: 'Brokers & Infrastructure' },
+                        { num: 33, title: 'Dealing Desk and Market-Maker Models', desc: 'Different approaches to retail order handling.', level: 'Intermediate', prereq: '31–32', moduleId: 4, moduleTitle: 'Brokers & Infrastructure' },
+                        { num: 34, title: 'STP, ECN, and Liquidity Providers', desc: 'Common execution and liquidity terminology.', level: 'Intermediate', prereq: '31–33', moduleId: 4, moduleTitle: 'Brokers & Infrastructure' },
+                        { num: 35, title: 'Order Execution, Slippage, and Requotes', desc: 'What can happen between clicking and receiving execution.', level: 'Intermediate', prereq: '18, 24, 34', moduleId: 4, moduleTitle: 'Brokers & Infrastructure' },
+                        { num: 36, title: 'Regulation and Client Protection', desc: 'How regulatory frameworks differ and what traders should verify.', level: 'Intermediate', prereq: '31', moduleId: 4, moduleTitle: 'Brokers & Infrastructure' },
+                        { num: 37, title: 'Counterparty and Broker Risk', desc: 'Insolvency, withdrawals, negative balances, and operational risk.', level: 'Intermediate', prereq: '36', moduleId: 4, moduleTitle: 'Brokers & Infrastructure' },
+                        { num: 38, title: 'How to Evaluate a Broker', desc: 'A neutral due-diligence framework without selecting a broker.', level: 'Intermediate', prereq: '31–37', moduleId: 4, moduleTitle: 'Brokers & Infrastructure' }
+                    ]},
+                    { id: 5, title: 'Trading Platforms & Orders', level: 'Intermediate', open: false, chapters: [
+                        { num: 39, title: 'Trading Platforms Explained', desc: 'MetaTrader, TradingView, cTrader, mobile, and desktop workflows.', level: 'Beginner', prereq: '25', moduleId: 5, moduleTitle: 'Platforms & Orders' },
+                        { num: 40, title: 'Charts, Watchlists, and Workspaces', desc: 'Building an organized analysis environment.', level: 'Beginner', prereq: '39', moduleId: 5, moduleTitle: 'Platforms & Orders' },
+                        { num: 41, title: 'Market Orders', desc: 'Immediate execution and its trade-offs.', level: 'Beginner', prereq: '39–40', moduleId: 5, moduleTitle: 'Platforms & Orders' },
+                        { num: 42, title: 'Limit Orders', desc: 'Entering at a specified price or better.', level: 'Beginner', prereq: '41', moduleId: 5, moduleTitle: 'Platforms & Orders' },
+                        { num: 43, title: 'Stop Orders', desc: 'Entering after price reaches a specified level.', level: 'Beginner', prereq: '41–42', moduleId: 5, moduleTitle: 'Platforms & Orders' },
+                        { num: 44, title: 'Stop-Limit Orders and Conditional Orders', desc: 'More advanced order-control concepts.', level: 'Intermediate', prereq: '42–43', moduleId: 5, moduleTitle: 'Platforms & Orders' },
+                        { num: 45, title: 'Trailing Stops and Trade Management Orders', desc: 'Dynamic exit mechanisms and their limitations.', level: 'Intermediate', prereq: '28, 43', moduleId: 5, moduleTitle: 'Platforms & Orders' },
+                        { num: 46, title: 'Order Execution Practical Lab', desc: 'Practice placing, modifying, and closing hypothetical orders.', level: 'Beginner', prereq: '41–45', moduleId: 5, moduleTitle: 'Platforms & Orders' }
+                    ]},
+                    { id: 6, title: 'Trading Sessions & Time', level: 'Intermediate', open: false, chapters: [
+                        { num: 47, title: 'The Global Trading Day', desc: 'How FX activity moves around the world.', level: 'Beginner', prereq: '1, 6', moduleId: 6, moduleTitle: 'Trading Sessions & Time' },
+                        { num: 48, title: 'Sydney, Tokyo, London, and New York Sessions', desc: 'Characteristics of major trading sessions.', level: 'Beginner', prereq: '47', moduleId: 6, moduleTitle: 'Trading Sessions & Time' },
+                        { num: 49, title: 'Session Overlaps', desc: 'Why overlapping sessions can have different liquidity and volatility.', level: 'Intermediate', prereq: '48', moduleId: 6, moduleTitle: 'Trading Sessions & Time' },
+                        { num: 50, title: 'Time Zones and Daylight Saving Time', desc: 'Avoiding timing errors in international markets.', level: 'Beginner', prereq: '48', moduleId: 6, moduleTitle: 'Trading Sessions & Time' },
+                        { num: 51, title: 'Weekend Gaps and Market Closures', desc: 'What happens when markets reopen after a weekend.', level: 'Intermediate', prereq: '47–50', moduleId: 6, moduleTitle: 'Trading Sessions & Time' }
+                    ]},
+                    { id: 7, title: 'Price & Market Structure', level: 'Intermediate', open: false, chapters: [
+                        { num: 52, title: 'Reading OHLC Price Data', desc: 'Open, high, low, close, and what each represents.', level: 'Beginner', prereq: '15, 39', moduleId: 7, moduleTitle: 'Price & Market Structure' },
+                        { num: 53, title: 'Candlestick Anatomy', desc: 'Bodies, wicks, highs, lows, and closes.', level: 'Beginner', prereq: '52', moduleId: 7, moduleTitle: 'Price & Market Structure' },
+                        { num: 54, title: 'Swing Highs and Swing Lows', desc: 'Identifying meaningful turning points.', level: 'Beginner', prereq: '52–53', moduleId: 7, moduleTitle: 'Price & Market Structure' },
+                        { num: 55, title: 'Higher Highs, Higher Lows, Lower Highs, Lower Lows', desc: 'Describing directional structure objectively.', level: 'Beginner', prereq: '54', moduleId: 7, moduleTitle: 'Price & Market Structure' },
+                        { num: 56, title: 'Trends, Ranges, and Consolidation', desc: 'Describing market conditions before predicting anything.', level: 'Beginner', prereq: '55', moduleId: 7, moduleTitle: 'Price & Market Structure' },
+                        { num: 57, title: 'Expansion, Compression, and Volatility', desc: 'Understanding changes in price activity.', level: 'Intermediate', prereq: '56', moduleId: 7, moduleTitle: 'Price & Market Structure' },
+                        { num: 58, title: 'Breakouts, Breakdowns, and Pullbacks', desc: 'How price can move beyond established structures.', level: 'Intermediate', prereq: '56–57', moduleId: 7, moduleTitle: 'Price & Market Structure' },
+                        { num: 59, title: 'Reversals and Failed Breakouts', desc: 'Distinguishing continuation from failed movement.', level: 'Intermediate', prereq: '58', moduleId: 7, moduleTitle: 'Price & Market Structure' },
+                        { num: 60, title: 'Describing Price Without Predicting It', desc: 'Building objective chart-reading skills.', level: 'Beginner', prereq: '52–59', moduleId: 7, moduleTitle: 'Price & Market Structure' }
+                    ]},
+                    { id: 8, title: 'Candlestick Analysis', level: 'Intermediate', open: false, chapters: [
+                        { num: 61, title: 'Bullish and Bearish Candles', desc: 'Basic interpretation of candle direction.', level: 'Beginner', prereq: '53', moduleId: 8, moduleTitle: 'Candlestick Analysis' },
+                        { num: 62, title: 'Doji, Indecision, and Rejection', desc: 'What individual candle shapes may and may not tell you.', level: 'Beginner', prereq: '61', moduleId: 8, moduleTitle: 'Candlestick Analysis' },
+                        { num: 63, title: 'Hammer and Shooting Star', desc: 'Understanding rejection-type formations.', level: 'Intermediate', prereq: '62', moduleId: 8, moduleTitle: 'Candlestick Analysis' },
+                        { num: 64, title: 'Engulfing Patterns', desc: 'Comparing current and previous candle ranges.', level: 'Intermediate', prereq: '61–62', moduleId: 8, moduleTitle: 'Candlestick Analysis' },
+                        { num: 65, title: 'Inside and Outside Bars', desc: 'Compression and expansion patterns.', level: 'Intermediate', prereq: '57, 61', moduleId: 8, moduleTitle: 'Candlestick Analysis' },
+                        { num: 66, title: 'Multi-Candle Formations', desc: 'Morning stars, evening stars, and related patterns.', level: 'Intermediate', prereq: '61–65', moduleId: 8, moduleTitle: 'Candlestick Analysis' },
+                        { num: 67, title: 'Context, Location, and Confirmation', desc: 'Why candle patterns cannot be treated as magical signals.', level: 'Intermediate', prereq: '56–66', moduleId: 8, moduleTitle: 'Candlestick Analysis' }
+                    ]},
+                    { id: 9, title: 'Support, Resistance & Trend Analysis', level: 'Intermediate', open: false, chapters: [
+                        { num: 68, title: 'Horizontal Support and Resistance', desc: 'Identifying historically important price areas.', level: 'Beginner', prereq: '54–56', moduleId: 9, moduleTitle: 'Support, Resistance & Trend' },
+                        { num: 69, title: 'Zones vs Exact Price Lines', desc: 'Why support and resistance are often areas rather than precise numbers.', level: 'Intermediate', prereq: '68', moduleId: 9, moduleTitle: 'Support, Resistance & Trend' },
+                        { num: 70, title: 'Previous Highs, Lows, and Psychological Levels', desc: 'Common reference points on charts.', level: 'Intermediate', prereq: '68–69', moduleId: 9, moduleTitle: 'Support, Resistance & Trend' },
+                        { num: 71, title: 'Role Reversal', desc: 'Support becoming resistance and vice versa.', level: 'Intermediate', prereq: '68', moduleId: 9, moduleTitle: 'Support, Resistance & Trend' },
+                        { num: 72, title: 'Break-and-Retest Concepts', desc: 'Testing whether a broken level becomes relevant again.', level: 'Intermediate', prereq: '58, 71', moduleId: 9, moduleTitle: 'Support, Resistance & Trend' },
+                        { num: 73, title: 'Trend Identification', desc: 'Objective methods for identifying directional environments.', level: 'Intermediate', prereq: '55–56', moduleId: 9, moduleTitle: 'Support, Resistance & Trend' },
+                        { num: 74, title: 'Trend Continuation and Exhaustion', desc: 'Why trends can persist or weaken.', level: 'Intermediate', prereq: '73', moduleId: 9, moduleTitle: 'Support, Resistance & Trend' },
+                        { num: 75, title: 'Range Analysis', desc: 'Trading concepts for sideways environments.', level: 'Intermediate', prereq: '56, 68', moduleId: 9, moduleTitle: 'Support, Resistance & Trend' }
+                    ]},
+                    { id: 10, title: 'Multi-Timeframe Analysis', level: 'Advanced', open: false, chapters: [
+                        { num: 76, title: 'Understanding Timeframes', desc: 'Why the same market can look different at different scales.', level: 'Beginner', prereq: '52', moduleId: 10, moduleTitle: 'Multi-Timeframe Analysis' },
+                        { num: 77, title: 'Monthly, Weekly, and Daily Structure', desc: 'Higher-timeframe context.', level: 'Intermediate', prereq: '76', moduleId: 10, moduleTitle: 'Multi-Timeframe Analysis' },
+                        { num: 78, title: '4H, 1H, and Intraday Structure', desc: 'Intermediate structural analysis.', level: 'Intermediate', prereq: '76–77', moduleId: 10, moduleTitle: 'Multi-Timeframe Analysis' },
+                        { num: 79, title: '30M, 15M, 5M, and 1M Charts', desc: 'Lower-timeframe execution environments.', level: 'Intermediate', prereq: '76–78', moduleId: 10, moduleTitle: 'Multi-Timeframe Analysis' },
+                        { num: 80, title: 'Top-Down Analysis', desc: 'Higher timeframe → intermediate timeframe → execution timeframe.', level: 'Intermediate', prereq: '77–79', moduleId: 10, moduleTitle: 'Multi-Timeframe Analysis' },
+                        { num: 81, title: 'Timeframe Conflicts', desc: 'Why bullish and bearish structures can coexist.', level: 'Advanced', prereq: '80', moduleId: 10, moduleTitle: 'Multi-Timeframe Analysis' }
+                    ]},
+                    { id: 11, title: 'Technical Indicators', level: 'Intermediate', open: false, chapters: [
+                        { num: 82, title: 'What Indicators Actually Calculate', desc: 'Indicators as mathematical transformations of price/data.', level: 'Intermediate', prereq: '52–57', moduleId: 11, moduleTitle: 'Technical Indicators' },
+                        { num: 83, title: 'SMA, EMA, and WMA', desc: 'Moving-average calculations and interpretation.', level: 'Intermediate', prereq: '82', moduleId: 11, moduleTitle: 'Technical Indicators' },
+                        { num: 84, title: 'RSI', desc: 'Momentum measurement, interpretation, and limitations.', level: 'Intermediate', prereq: '82', moduleId: 11, moduleTitle: 'Technical Indicators' },
+                        { num: 85, title: 'MACD', desc: 'Moving-average relationships and momentum.', level: 'Intermediate', prereq: '83', moduleId: 11, moduleTitle: 'Technical Indicators' },
+                        { num: 86, title: 'Stochastic Oscillator', desc: 'Position of current price within a recent range.', level: 'Intermediate', prereq: '82', moduleId: 11, moduleTitle: 'Technical Indicators' },
+                        { num: 87, title: 'ATR', desc: 'Measuring average true range and volatility.', level: 'Intermediate', prereq: '82', moduleId: 11, moduleTitle: 'Technical Indicators' },
+                        { num: 88, title: 'Bollinger Bands', desc: 'Moving average plus volatility bands.', level: 'Intermediate', prereq: '83, 87', moduleId: 11, moduleTitle: 'Technical Indicators' },
+                        { num: 89, title: 'ADX', desc: 'Measuring trend strength rather than direction.', level: 'Intermediate', prereq: '82', moduleId: 11, moduleTitle: 'Technical Indicators' },
+                        { num: 90, title: 'Ichimoku', desc: 'Multi-component trend, momentum, and support/resistance framework.', level: 'Advanced', prereq: '82', moduleId: 11, moduleTitle: 'Technical Indicators' },
+                        { num: 91, title: 'CCI, Momentum, and Standard Deviation', desc: 'Additional statistical and momentum tools.', level: 'Intermediate', prereq: '82', moduleId: 11, moduleTitle: 'Technical Indicators' },
+                        { num: 92, title: 'Indicator Limitations and False Signals', desc: 'Lag, redundancy, regime dependence, and overuse.', level: 'Intermediate', prereq: '83–91', moduleId: 11, moduleTitle: 'Technical Indicators' }
+                    ]},
+                    { id: 12, title: 'Price Action & Advanced Market Structure', level: 'Advanced', open: false, chapters: [
+                        { num: 93, title: 'Raw Price Action', desc: 'What traders mean by analyzing price without heavy indicators.', level: 'Intermediate', prereq: '52–60', moduleId: 12, moduleTitle: 'Price Action & Advanced Structure' },
+                        { num: 94, title: 'Momentum and Impulse', desc: 'Identifying unusually strong directional movement.', level: 'Intermediate', prereq: '57, 93', moduleId: 12, moduleTitle: 'Price Action & Advanced Structure' },
+                        { num: 95, title: 'Retracement and Rejection', desc: 'Distinguishing temporary movement from possible structural change.', level: 'Intermediate', prereq: '58, 93', moduleId: 12, moduleTitle: 'Price Action & Advanced Structure' },
+                        { num: 96, title: 'Liquidity: What It Actually Means', desc: 'Market liquidity versus social-media interpretations.', level: 'Advanced', prereq: '32, 47', moduleId: 12, moduleTitle: 'Price Action & Advanced Structure' },
+                        { num: 97, title: 'Buy-Side and Sell-Side Liquidity', desc: 'A framework for describing areas where orders may be concentrated.', level: 'Advanced', prereq: '96', moduleId: 12, moduleTitle: 'Price Action & Advanced Structure' },
+                        { num: 98, title: 'Equal Highs, Equal Lows, and Liquidity Sweeps', desc: 'Observable structures and interpretive frameworks.', level: 'Advanced', prereq: '54, 97', moduleId: 12, moduleTitle: 'Price Action & Advanced Structure' },
+                        { num: 99, title: 'Break of Structure and Change of Character', desc: 'Popular structural terminology and its limitations.', level: 'Advanced', prereq: '55, 58', moduleId: 12, moduleTitle: 'Price Action & Advanced Structure' },
+                        { num: 100, title: 'Displacement, Imbalance, and Fair Value Gaps', desc: 'Modern price-action frameworks and competing interpretations.', level: 'Advanced', prereq: '94, 99', moduleId: 12, moduleTitle: 'Price Action & Advanced Structure' },
+                        { num: 101, title: 'Order Blocks and Mitigation', desc: 'Definitions, practical use, and evidence limitations.', level: 'Advanced', prereq: '99–100', moduleId: 12, moduleTitle: 'Price Action & Advanced Structure' },
+                        { num: 102, title: 'Premium/Discount Concepts', desc: 'Relative location frameworks within a price range.', level: 'Advanced', prereq: '68, 100', moduleId: 12, moduleTitle: 'Price Action & Advanced Structure' },
+                        { num: 103, title: 'Fact vs Interpretation in Market Structure', desc: 'Separating observable chart information from narrative.', level: 'Advanced', prereq: '96–102', moduleId: 12, moduleTitle: 'Price Action & Advanced Structure' }
+                    ]},
+                    { id: 13, title: 'Fibonacci & Classical Technical Analysis', level: 'Intermediate', open: false, chapters: [
+                        { num: 104, title: 'Fibonacci Mathematics', desc: 'Origins and mathematical relationships behind common ratios.', level: 'Intermediate', prereq: '82', moduleId: 13, moduleTitle: 'Fibonacci & Technical Analysis' },
+                        { num: 105, title: 'Fibonacci Retracements', desc: 'Applying retracement levels to price swings.', level: 'Intermediate', prereq: '54, 104', moduleId: 13, moduleTitle: 'Fibonacci & Technical Analysis' },
+                        { num: 106, title: 'Fibonacci Extensions', desc: 'Projecting potential extension levels.', level: 'Intermediate', prereq: '105', moduleId: 13, moduleTitle: 'Fibonacci & Technical Analysis' },
+                        { num: 107, title: 'Swing Selection and Confluence', desc: 'Subjectivity and combining Fibonacci with other evidence.', level: 'Advanced', prereq: '105–106', moduleId: 13, moduleTitle: 'Fibonacci & Technical Analysis' },
+                        { num: 108, title: 'Limitations of Fibonacci Analysis', desc: 'Testing assumptions rather than treating ratios as magic levels.', level: 'Advanced', prereq: '104–107', moduleId: 13, moduleTitle: 'Fibonacci & Technical Analysis' }
+                    ]},
+                    { id: 14, title: 'Fundamental & Macroeconomic Analysis', level: 'Advanced', open: false, chapters: [
+                        { num: 109, title: 'What Fundamental Analysis Is', desc: 'Understanding economic forces behind currency markets.', level: 'Intermediate', prereq: '3, 7', moduleId: 14, moduleTitle: 'Fundamental & Macro Analysis' },
+                        { num: 110, title: 'Supply, Demand, Expectations, and Valuation', desc: 'Why currencies can move before economic data is released.', level: 'Advanced', prereq: '3, 109', moduleId: 14, moduleTitle: 'Fundamental & Macro Analysis' },
+                        { num: 111, title: 'Inflation', desc: 'CPI, inflation expectations, and currency implications.', level: 'Intermediate', prereq: '109', moduleId: 14, moduleTitle: 'Fundamental & Macro Analysis' },
+                        { num: 112, title: 'Employment and Labor Markets', desc: 'Jobs data, wages, unemployment, and monetary policy implications.', level: 'Intermediate', prereq: '109', moduleId: 14, moduleTitle: 'Fundamental & Macro Analysis' },
+                        { num: 113, title: 'GDP and Economic Growth', desc: 'Measuring economic activity and interpreting growth data.', level: 'Intermediate', prereq: '109', moduleId: 14, moduleTitle: 'Fundamental & Macro Analysis' },
+                        { num: 114, title: 'PMI and Business Surveys', desc: 'Forward-looking economic indicators.', level: 'Intermediate', prereq: '109', moduleId: 14, moduleTitle: 'Fundamental & Macro Analysis' },
+                        { num: 115, title: 'Retail Sales and Consumer Confidence', desc: 'Consumer behavior and economic expectations.', level: 'Intermediate', prereq: '109', moduleId: 14, moduleTitle: 'Fundamental & Macro Analysis' },
+                        { num: 116, title: 'Trade Balance and Current Account', desc: 'International flows and external balances.', level: 'Advanced', prereq: '109', moduleId: 14, moduleTitle: 'Fundamental & Macro Analysis' },
+                        { num: 117, title: 'Government Debt and Fiscal Policy', desc: 'Government spending, taxation, debt, and currency implications.', level: 'Advanced', prereq: '109', moduleId: 14, moduleTitle: 'Fundamental & Macro Analysis' },
+                        { num: 118, title: 'Commodity Prices and Commodity Currencies', desc: 'Links between commodities and currencies such as CAD and AUD.', level: 'Advanced', prereq: '109', moduleId: 14, moduleTitle: 'Fundamental & Macro Analysis' },
+                        { num: 119, title: 'Productivity and Long-Run Currency Factors', desc: 'Structural economic forces affecting currencies.', level: 'Advanced', prereq: '109', moduleId: 14, moduleTitle: 'Fundamental & Macro Analysis' }
+                    ]},
+                    { id: 15, title: 'Central Banks, Interest Rates & News', level: 'Advanced', open: false, chapters: [
+                        { num: 120, title: 'What Central Banks Do', desc: 'Monetary authorities and their role in the economy.', level: 'Intermediate', prereq: '109', moduleId: 15, moduleTitle: 'Central Banks & News' },
+                        { num: 121, title: 'Federal Reserve and the US Dollar', desc: 'Fed policy and USD transmission mechanisms.', level: 'Intermediate', prereq: '120', moduleId: 15, moduleTitle: 'Central Banks & News' },
+                        { num: 122, title: 'ECB and the Euro', desc: 'European monetary policy and EUR.', level: 'Intermediate', prereq: '120', moduleId: 15, moduleTitle: 'Central Banks & News' },
+                        { num: 123, title: 'Bank of England and GBP', desc: 'UK monetary policy and GBP.', level: 'Intermediate', prereq: '120', moduleId: 15, moduleTitle: 'Central Banks & News' },
+                        { num: 124, title: 'Bank of Japan and JPY', desc: 'Japanese monetary policy and JPY.', level: 'Advanced', prereq: '120', moduleId: 15, moduleTitle: 'Central Banks & News' },
+                        { num: 125, title: 'SNB, BoC, RBA, and RBNZ', desc: 'Major additional central banks and their currencies.', level: 'Advanced', prereq: '120', moduleId: 15, moduleTitle: 'Central Banks & News' },
+                        { num: 126, title: 'Rate Hikes, Cuts, and Holding Rates', desc: 'How policy-rate changes affect expectations.', level: 'Intermediate', prereq: '120', moduleId: 15, moduleTitle: 'Central Banks & News' },
+                        { num: 127, title: 'Forward Guidance and Central-Bank Communication', desc: 'Why words can move markets.', level: 'Advanced', prereq: '120, 126', moduleId: 15, moduleTitle: 'Central Banks & News' },
+                        { num: 128, title: 'Quantitative Easing and Tightening', desc: 'Central-bank balance sheets and unconventional policy.', level: 'Advanced', prereq: '120', moduleId: 15, moduleTitle: 'Central Banks & News' },
+                        { num: 129, title: 'Interest-Rate Differentials and Yield', desc: 'Comparing economies through interest rates and bonds.', level: 'Advanced', prereq: '126–128', moduleId: 15, moduleTitle: 'Central Banks & News' },
+                        { num: 130, title: 'Carry Trade Concepts', desc: 'Earning or paying financing differences and associated risks.', level: 'Advanced', prereq: '20, 129', moduleId: 15, moduleTitle: 'Central Banks & News' },
+                        { num: 131, title: 'Economic Calendars', desc: 'Previous, forecast, actual, surprise, and impact.', level: 'Intermediate', prereq: '109', moduleId: 15, moduleTitle: 'Central Banks & News' },
+                        { num: 132, title: 'Why Markets Move Before News', desc: 'Expectations, positioning, and discounting.', level: 'Advanced', prereq: '110, 131', moduleId: 15, moduleTitle: 'Central Banks & News' },
+                        { num: 133, title: 'News Whipsaws and Unexpected Reactions', desc: 'Why apparently positive news can produce falling prices.', level: 'Advanced', prereq: '131–132', moduleId: 15, moduleTitle: 'Central Banks & News' }
+                    ]},
+                    { id: 16, title: 'Correlation, Liquidity & Market Regimes', level: 'Advanced', open: false, chapters: [
+                        { num: 134, title: 'Correlation Fundamentals', desc: 'Positive, negative, and unstable correlations.', level: 'Intermediate', prereq: '56', moduleId: 16, moduleTitle: 'Correlations & Regimes' },
+                        { num: 135, title: 'Currency and Commodity Correlations', desc: 'USD, gold, oil, CAD, AUD, and related relationships.', level: 'Advanced', prereq: '134', moduleId: 16, moduleTitle: 'Correlations & Regimes' },
+                        { num: 136, title: 'Correlation and Hidden Risk', desc: 'How several trades can represent one concentrated bet.', level: 'Advanced', prereq: '134–135', moduleId: 16, moduleTitle: 'Correlations & Regimes' },
+                        { num: 137, title: 'Liquidity Conditions', desc: 'How liquidity varies across markets and times.', level: 'Advanced', prereq: '96', moduleId: 16, moduleTitle: 'Correlations & Regimes' },
+                        { num: 138, title: 'Volatility Regimes', desc: 'High-, low-, and changing-volatility environments.', level: 'Advanced', prereq: '57, 87', moduleId: 16, moduleTitle: 'Correlations & Regimes' },
+                        { num: 139, title: 'Trend, Range, and Transition Regimes', desc: 'Identifying changing market environments.', level: 'Advanced', prereq: '73–75', moduleId: 16, moduleTitle: 'Correlations & Regimes' },
+                        { num: 140, title: 'Risk-On and Risk-Off Frameworks', desc: 'Cross-asset behavior and uncertainty regimes.', level: 'Advanced', prereq: '134–139', moduleId: 16, moduleTitle: 'Correlations & Regimes' },
+                        { num: 141, title: 'News-Driven and Event-Driven Regimes', desc: 'How major events can temporarily change market behavior.', level: 'Advanced', prereq: '131–133', moduleId: 16, moduleTitle: 'Correlations & Regimes' }
+                    ]},
+                    { id: 17, title: 'Risk Management & Position Sizing', level: 'Beginner to Advanced', open: false, chapters: [
+                        { num: 142, title: 'Why Risk Management Comes First', desc: 'Survival, uncertainty, and avoiding catastrophic losses.', level: 'Beginner', prereq: '25–30', moduleId: 17, moduleTitle: 'Risk Management' },
+                        { num: 143, title: 'Risk Per Trade', desc: 'Defining monetary and percentage risk before entry.', level: 'Beginner', prereq: '142', moduleId: 17, moduleTitle: 'Risk Management' },
+                        { num: 144, title: 'Position-Sizing Formula', desc: 'Calculating position size from account risk and stop distance.', level: 'Intermediate', prereq: '29, 143', moduleId: 17, moduleTitle: 'Risk Management' },
+                        { num: 145, title: 'Account Size and Risk Scenarios', desc: '$100, $500, $1,000, $5,000, and $10,000 examples.', level: 'Intermediate', prereq: '144', moduleId: 17, moduleTitle: 'Risk Management' },
+                        { num: 146, title: 'Leverage vs Risk', desc: 'Why leverage and actual risk are different concepts.', level: 'Intermediate', prereq: '23, 144', moduleId: 17, moduleTitle: 'Risk Management' },
+                        { num: 147, title: 'Margin and Exposure Calculations', desc: 'Understanding notional value and collateral requirements.', level: 'Intermediate', prereq: '22–23', moduleId: 17, moduleTitle: 'Risk Management' },
+                        { num: 148, title: 'Stop Distance and Volatility', desc: 'Connecting market conditions to position sizing.', level: 'Advanced', prereq: '87, 144', moduleId: 17, moduleTitle: 'Risk Management' },
+                        { num: 149, title: 'Risk/Reward Ratio', desc: 'Comparing potential loss with potential gain.', level: 'Intermediate', prereq: '28, 143', moduleId: 17, moduleTitle: 'Risk Management' },
+                        { num: 150, title: 'Daily and Weekly Loss Limits', desc: 'Preventing a bad period from becoming catastrophic.', level: 'Intermediate', prereq: '143', moduleId: 17, moduleTitle: 'Risk Management' },
+                        { num: 151, title: 'Portfolio and Correlated Exposure', desc: 'Measuring total risk across simultaneous positions.', level: 'Advanced', prereq: '136, 150', moduleId: 17, moduleTitle: 'Risk Management' },
+                        { num: 152, title: 'Risk of Ruin', desc: 'Understanding the probability and consequences of account destruction.', level: 'Advanced', prereq: '143–151', moduleId: 17, moduleTitle: 'Risk Management' }
+                    ]},
+                    { id: 18, title: 'Expectancy, Statistics & Psychology', level: 'Intermediate to Advanced', open: false, chapters: [
+                        { num: 153, title: 'Win Rate and Average Win/Loss', desc: 'Why win percentage alone is insufficient.', level: 'Intermediate', prereq: '149', moduleId: 18, moduleTitle: 'Expectancy & Psychology' },
+                        { num: 154, title: 'Expected Value and Expectancy', desc: 'Mathematical framework for evaluating trading systems.', level: 'Intermediate', prereq: '153', moduleId: 18, moduleTitle: 'Expectancy & Psychology' },
+                        { num: 155, title: 'Break-Even Win Rate', desc: 'Calculating the win rate needed for different payoff structures.', level: 'Intermediate', prereq: '149, 153', moduleId: 18, moduleTitle: 'Expectancy & Psychology' },
+                        { num: 156, title: 'Profit Factor', desc: 'Comparing gross profits with gross losses.', level: 'Intermediate', prereq: '153–154', moduleId: 18, moduleTitle: 'Expectancy & Psychology' },
+                        { num: 157, title: 'R-Multiples', desc: 'Measuring trade outcomes relative to initial risk.', level: 'Intermediate', prereq: '143, 154', moduleId: 18, moduleTitle: 'Expectancy & Psychology' },
+                        { num: 158, title: 'Mean, Median, Variance, and Standard Deviation', desc: 'Core statistics for trading analysis.', level: 'Intermediate', prereq: '154', moduleId: 18, moduleTitle: 'Expectancy & Psychology' },
+                        { num: 159, title: 'Distributions and Sample Size', desc: 'Why small samples can be misleading.', level: 'Advanced', prereq: '158', moduleId: 18, moduleTitle: 'Expectancy & Psychology' },
+                        { num: 160, title: 'Correlation and Regression Basics', desc: 'Quantitative relationships between variables.', level: 'Advanced', prereq: '134, 158', moduleId: 18, moduleTitle: 'Expectancy & Psychology' },
+                        { num: 161, title: 'Drawdown Statistics', desc: 'Maximum drawdown, duration, and recovery.', level: 'Advanced', prereq: '152, 158', moduleId: 18, moduleTitle: 'Expectancy & Psychology' },
+                        { num: 162, title: 'Trading Psychology Fundamentals', desc: 'Fear, greed, uncertainty, and emotional reactions.', level: 'Beginner', prereq: '142', moduleId: 18, moduleTitle: 'Expectancy & Psychology' },
+                        { num: 163, title: 'Cognitive Biases in Trading', desc: 'FOMO, confirmation bias, anchoring, recency bias, and loss aversion.', level: 'Intermediate', prereq: '162', moduleId: 18, moduleTitle: 'Expectancy & Psychology' },
+                        { num: 164, title: 'Revenge Trading and Overtrading', desc: 'Why emotional responses can create destructive trading loops.', level: 'Intermediate', prereq: '162–163', moduleId: 18, moduleTitle: 'Expectancy & Psychology' },
+                        { num: 165, title: 'Discipline and Process Design', desc: 'Building systems that reduce dependence on willpower.', level: 'Advanced', prereq: '162–164', moduleId: 18, moduleTitle: 'Expectancy & Psychology' }
+                    ]},
+                    { id: 19, title: 'Strategies, System Development & Backtesting', level: 'Intermediate to Advanced', open: false, chapters: [
+                        { num: 166, title: 'What Is a Trading Strategy?', desc: 'Separating an idea, setup, strategy, and complete system.', level: 'Beginner', prereq: '154', moduleId: 19, moduleTitle: 'Strategies & Backtesting' },
+                        { num: 167, title: 'Trend-Following Strategies', desc: 'Core logic, environments, advantages, and failure conditions.', level: 'Intermediate', prereq: '73, 166', moduleId: 19, moduleTitle: 'Strategies & Backtesting' },
+                        { num: 168, title: 'Breakout Strategies', desc: 'Designing and testing breakout hypotheses.', level: 'Intermediate', prereq: '58, 166', moduleId: 19, moduleTitle: 'Strategies & Backtesting' },
+                        { num: 169, title: 'Pullback Strategies', desc: 'Trend continuation after retracement.', level: 'Intermediate', prereq: '58, 73', moduleId: 19, moduleTitle: 'Strategies & Backtesting' },
+                        { num: 170, title: 'Range and Mean-Reversion Strategies', desc: 'Trading around recurring price distributions.', level: 'Intermediate', prereq: '75, 166', moduleId: 19, moduleTitle: 'Strategies & Backtesting' },
+                        { num: 171, title: 'Momentum Strategies', desc: 'Trading strong directional movement.', level: 'Intermediate', prereq: '94, 166', moduleId: 19, moduleTitle: 'Strategies & Backtesting' },
+                        { num: 172, title: 'Swing, Day-Trading, and Scalping Frameworks', desc: 'Comparing holding periods and execution requirements.', level: 'Intermediate', prereq: '47–51', moduleId: 19, moduleTitle: 'Strategies & Backtesting' },
+                        { num: 173, title: 'News-Trading Strategies', desc: 'Concepts, risks, and why execution is difficult.', level: 'Advanced', prereq: '131–133', moduleId: 19, moduleTitle: 'Strategies & Backtesting' },
+                        { num: 174, title: 'Turning an Idea Into Rules', desc: 'Market, setup, entry, stop, target, and no-trade conditions.', level: 'Advanced', prereq: '166–173', moduleId: 19, moduleTitle: 'Strategies & Backtesting' },
+                        { num: 175, title: 'Discretionary vs Systematic Trading', desc: 'Comparing human judgment with rule-based execution.', level: 'Advanced', prereq: '174', moduleId: 19, moduleTitle: 'Strategies & Backtesting' },
+                        { num: 176, title: 'What Is Backtesting?', desc: 'Testing a strategy against historical data.', level: 'Intermediate', prereq: '174', moduleId: 19, moduleTitle: 'Strategies & Backtesting' },
+                        { num: 177, title: 'Manual Bar-by-Bar Backtesting', desc: 'A practical historical-testing procedure.', level: 'Intermediate', prereq: '176', moduleId: 19, moduleTitle: 'Strategies & Backtesting' },
+                        { num: 178, title: 'Data Quality and Transaction Costs', desc: 'Spread, commission, slippage, and realistic assumptions.', level: 'Advanced', prereq: '35, 176', moduleId: 19, moduleTitle: 'Strategies & Backtesting' },
+                        { num: 179, title: 'Look-Ahead Bias and Survivorship Bias', desc: 'Hidden errors that contaminate historical tests.', level: 'Advanced', prereq: '176–178', moduleId: 19, moduleTitle: 'Strategies & Backtesting' },
+                        { num: 180, title: 'Data Snooping and Overfitting', desc: 'Why optimizing a system against history can create false confidence.', level: 'Advanced', prereq: '179', moduleId: 19, moduleTitle: 'Strategies & Backtesting' },
+                        { num: 181, title: 'In-Sample vs Out-of-Sample Testing', desc: 'Separating development from validation.', level: 'Advanced', prereq: '180', moduleId: 19, moduleTitle: 'Strategies & Backtesting' },
+                        { num: 182, title: 'Forward Testing and Demo Validation', desc: 'Testing strategy behavior on unseen/live-market data without real capital.', level: 'Advanced', prereq: '181', moduleId: 19, moduleTitle: 'Strategies & Backtesting' }
+                    ]},
+                    { id: 20, title: 'Professional Trading, Automation & Continuous Improvement', level: 'Professional', open: false, chapters: [
+                        { num: 183, title: 'Trading Journal Architecture', desc: 'Designing a professional trade-recording system.', level: 'Intermediate', prereq: '157, 165', moduleId: 20, moduleTitle: 'Professional Trading' },
+                        { num: 184, title: 'Statistical Journal Analysis', desc: 'Finding patterns in actual trading behavior.', level: 'Advanced', prereq: '158–161, 183', moduleId: 20, moduleTitle: 'Professional Trading' },
+                        { num: 185, title: 'Building a Complete Trading Plan', desc: 'Markets, sessions, setups, risk, execution, and review rules.', level: 'Advanced', prereq: '174, 183', moduleId: 20, moduleTitle: 'Professional Trading' },
+                        { num: 186, title: 'Advanced Execution', desc: 'Slippage, spread changes, partial exits, scaling, and trade management.', level: 'Advanced', prereq: '35, 45, 178', moduleId: 20, moduleTitle: 'Professional Trading' },
+                        { num: 187, title: 'Algorithmic Trading Fundamentals', desc: 'Rule-based systems, variables, automation, and APIs.', level: 'Advanced', prereq: '175', moduleId: 20, moduleTitle: 'Professional Trading' },
+                        { num: 188, title: 'Expert Advisors and Automated Execution', desc: 'How automated trading systems operate conceptually.', level: 'Advanced', prereq: '187', moduleId: 20, moduleTitle: 'Professional Trading' },
+                        { num: 189, title: 'Algorithmic Backtesting Limitations', desc: 'Data quality, execution assumptions, overfitting, and model risk.', level: 'Advanced', prereq: '178–182, 187', moduleId: 20, moduleTitle: 'Professional Trading' },
+                        { num: 190, title: 'Professional Performance Metrics', desc: 'Net return, gross profit/loss, profit factor, expectancy, and average trade.', level: 'Advanced', prereq: '154–161', moduleId: 20, moduleTitle: 'Professional Trading' },
+                        { num: 191, title: 'Sharpe, Sortino, Recovery Factor, and Risk-Adjusted Returns', desc: 'Measuring performance relative to risk.', level: 'Advanced', prereq: '161, 190', moduleId: 20, moduleTitle: 'Professional Trading' },
+                        { num: 192, title: 'Advanced Risk: Tail, Gap, Event, and Model Risk', desc: 'Risks that ordinary position sizing may not fully capture.', level: 'Advanced', prereq: '151–152', moduleId: 20, moduleTitle: 'Professional Trading' },
+                        { num: 193, title: 'Market Microstructure', desc: 'Order matching, dealer models, depth, fragmentation, and institutional execution.', level: 'Professional', prereq: '32, 96, 137', moduleId: 20, moduleTitle: 'Professional Trading' },
+                        { num: 194, title: 'Professional Trading Mindset', desc: 'Probabilistic thinking, uncertainty, process, and emotional neutrality.', level: 'Professional', prereq: '162–165', moduleId: 20, moduleTitle: 'Professional Trading' },
+                        { num: 195, title: 'Scam and Fraud Awareness', desc: 'Signals, fake records, guaranteed returns, fake brokers, and manipulation.', level: 'Intermediate', prereq: '10, 38', moduleId: 20, moduleTitle: 'Professional Trading' },
+                        { num: 196, title: 'Prop Trading Models', desc: 'Evaluation structures, drawdowns, restrictions, payouts, and business-model risks.', level: 'Advanced', prereq: '150–152', moduleId: 20, moduleTitle: 'Professional Trading' },
+                        { num: 197, title: 'Tax, Legal, and Jurisdictional Due Diligence', desc: 'How to identify what must be verified locally before trading.', level: 'Advanced', prereq: '36–38', moduleId: 20, moduleTitle: 'Professional Trading' },
+                        { num: 198, title: 'Strategy Robustness', desc: 'Sensitivity analysis, parameter stability, and regime testing.', level: 'Professional', prereq: '180–182', moduleId: 20, moduleTitle: 'Professional Trading' },
+                        { num: 199, title: 'Walk-Forward and Monte Carlo Analysis', desc: 'Advanced validation and uncertainty analysis.', level: 'Professional', prereq: '181, 198', moduleId: 20, moduleTitle: 'Professional Trading' },
+                        { num: 200, title: 'Continuous Improvement and Professional Readiness', desc: 'Building a sustainable research, testing, review, and improvement process.', level: 'Professional', prereq: '183–199', moduleId: 20, moduleTitle: 'Professional Trading' }
+                    ]}
+                ],
+
+                // Assessments & Capstones
+                cumulativeExams: [
+                    { title: 'Cumulative Exam 1', coverage: 'Ch 1–40', desc: 'Foundations, terminology, mechanics, brokers, platforms.' },
+                    { title: 'Cumulative Exam 2', coverage: 'Ch 41–80', desc: 'Orders, sessions, charts, market structure, timeframes.' },
+                    { title: 'Cumulative Exam 3', coverage: 'Ch 81–120', desc: 'Indicators, price action, advanced structure, Fibonacci, fundamentals.' },
+                    { title: 'Cumulative Exam 4', coverage: 'Ch 121–160', desc: 'Central banks, macroeconomics, correlation, risk, statistics.' },
+                    { title: 'Cumulative Exam 5', coverage: 'Ch 161–200', desc: 'Psychology, strategies, testing, professional trading.' }
+                ],
+
+                capstones: [
+                    { title: 'Strategy-Development Project', desc: 'Turn a trading hypothesis into explicit, testable rules with entry, exit, and risk parameters.', req: 'Ch 166–175', deliverable: 'Written Strategy Spec Sheet' },
+                    { title: 'Manual Backtesting Project', desc: 'Build and evaluate a historical sample of 100 trades using realistic transaction costs.', req: 'Ch 176–181', deliverable: 'Spreadsheet Statistical Report' },
+                    { title: 'Forward-Testing & Demo Validation', desc: 'Test the strategy on unseen/demo data for 30 consecutive trading days without breaking process.', req: 'Ch 182', deliverable: 'Live Execution Log' },
+                    { title: 'Complete Trading-Plan Project', desc: 'Produce a professional trading plan with risk, drawdown limits, and daily review routines.', req: 'Ch 185', deliverable: 'Professional Operating Document' }
+                ],
+
+                // A-Z Glossary Data
+                glossary: [
+                    { term: 'Ask Price', cat: 'Execution', def: 'The lowest price a seller is willing to accept for a currency pair.' },
+                    { term: 'Base Currency', cat: 'Basics', def: 'The first currency listed in a pair (e.g. EUR in EUR/USD).' },
+                    { term: 'Bid Price', cat: 'Execution', def: 'The highest price a buyer is willing to pay for a currency pair.' },
+                    { term: 'Carry Trade', cat: 'Macro', def: 'A strategy where a trader buys a currency with a high interest rate and sells a currency with a low interest rate.' },
+                    { term: 'Drawdown', cat: 'Risk', def: 'The peak-to-trough decline during a specific record period of an investment or trading account.' },
+                    { term: 'ECN Broker', cat: 'Infrastructure', def: 'Electronic Communication Network broker that routes trades directly to liquidity providers.' },
+                    { term: 'Expectancy', cat: 'Math', def: 'The average monetary amount you expect to win or lose per trade over a large sample.' },
+                    { term: 'Fair Value Gap (FVG)', cat: 'Price Action', def: 'An imbalance created when price moves rapidly in one direction leaving an unmitigated inefficiency.' },
+                    { term: 'Margin Call', cat: 'Account', def: 'A broker warning triggered when equity falls below the required margin threshold.' },
+                    { term: 'Pip', cat: 'Basics', def: 'Percentage in Point. Standard unit of movement (usually 0.0001 in non-JPY pairs).' },
+                    { term: 'Quote Currency', cat: 'Basics', def: 'The second currency in a pair (e.g. USD in EUR/USD).' },
+                    { term: 'Slippage', cat: 'Execution', def: 'The difference between expected entry price and actual executed entry price.' },
+                    { term: 'Spread', cat: 'Execution', def: 'The difference between the Bid and Ask prices.' },
+                    { term: 'Swap Rate', cat: 'Mechanics', def: 'Overnight interest paid or earned for holding a position past the daily roll time.' }
+                ],
+
+                init() {
+                    // Set default selected chapter as Ch 1
+                    this.selectedChapter = this.modules[0].chapters[0];
+                },
+
+                get filteredModules() {
+                    return this.modules.map(mod => {
+                        let chs = mod.chapters.filter(ch => {
+                            const matchesSearch = this.searchQuery === '' || 
+                                ch.title.toLowerCase().includes(this.searchQuery.toLowerCase()) || 
+                                ch.desc.toLowerCase().includes(this.searchQuery.toLowerCase());
+                            const matchesLevel = this.levelFilter === 'All' || ch.level === this.levelFilter;
+                            return matchesSearch && matchesLevel;
+                        });
+                        return { ...mod, chapters: chs };
+                    }).filter(m => m.chapters.length > 0);
+                },
+
+                get completedCount() {
+                    return this.completedChapters.length;
+                },
+
+                get progressPercentage() {
+                    return Math.round((this.completedCount / 200) * 100);
+                },
+
+                get filteredGlossary() {
+                    if (!this.glossarySearch) return this.glossary;
+                    return this.glossary.filter(g => 
+                        g.term.toLowerCase().includes(this.glossarySearch.toLowerCase()) ||
+                        g.def.toLowerCase().includes(this.glossarySearch.toLowerCase())
+                    );
+                },
+
+                toggleAllModules() {
+                    this.allExpanded = !this.allExpanded;
+                    this.modules.forEach(m => m.open = this.allExpanded);
+                },
+
+                selectChapter(ch) {
+                    this.selectedChapter = ch;
+                    this.quizAnswered = null;
+                    if (window.innerWidth < 1024) {
+                        this.mobileSidebarOpen = false;
+                    }
+                },
+
+                toggleChapterComplete(num) {
+                    if (this.completedChapters.includes(num)) {
+                        this.completedChapters = this.completedChapters.filter(n => n !== num);
+                    } else {
+                        this.completedChapters.push(num);
+                    }
+                    localStorage.setItem('fx_completed_chapters', JSON.stringify(this.completedChapters));
+                },
+
+                navigateChapter(delta) {
+                    if (!this.selectedChapter) return;
+                    let targetNum = this.selectedChapter.num + delta;
+                    if (targetNum >= 1 && targetNum <= 200) {
+                        for (let m of this.modules) {
+                            let found = m.chapters.find(c => c.num === targetNum);
+                            if (found) {
+                                this.selectChapter(found);
+                                m.open = true;
+                                break;
+                            }
+                        }
+                    }
+                },
+
+                checkQuizAnswer(idx) {
+                    this.quizAnswered = idx;
+                },
+
+                // Generators for lesson content
+                getChapterLesson(ch) {
+                    return {
+                        coreConcept: `In ${ch.title}, traders analyze fundamental and technical drivers that govern price behavior. At its core, this concept establishes how market forces interact to create actionable opportunities or structural shifts in exchange rates.`,
+                        whyItMatters: `Without mastering ${ch.title}, traders routinely fall into execution pitfalls, miscalculating risk exposure or misreading market dynamics. Understanding this concept provides a solid quantitative foundation for risk control and strategy formulation.`,
+                        formula: `Position Size (Lots) = (Account Balance × Risk %) / (Stop Distance in Pips × Pip Value per Lot)`,
+                        example: `Suppose EUR/USD is trading at 1.0850. You decide to risk 1% of a $10,000 account ($100 risk) with a 20-pip stop loss. With a $10 per pip standard lot value, your position size is exactly 0.5 standard lots ($100 / (20 × $10)).`,
+                        institutionalView: `Institutions evaluate market structure, order book liquidity depth, and macroeconomic rate expectations rather than seeking isolated chart indicators.`,
+                        misconception: `Retail beginners often treat signals as guaranteed outcome indicators without considering liquidity context, spreads, or event-risk volatility.`,
+                        executionRules: [
+                            "Always define your risk percentage before opening any order.",
+                            "Verify spread width and liquidity conditions before trade entry.",
+                            "Never modify your stop-loss order once price moves against your original thesis."
+                        ],
+                        quiz: {
+                            question: `What is the primary factor that determines position size in sound risk management?`,
+                            options: [
+                                "The amount of leverage offered by your broker",
+                                "The account balance, risk percentage, and stop loss distance in pips",
+                                "The direction of the 200-period Moving Average",
+                                "The timeframe you are currently viewing"
+                            ],
+                            correct: 1,
+                            explanation: "Position size must strictly be calculated using your predetermined dollar risk (Account Balance × Risk %) divided by the pip distance of your stop loss."
+                        }
+                    };
+                },
+
+                // Calculator math
+                calculateLotSize() {
+                    let riskDollars = this.calc.balance * (this.calc.riskPercent / 100);
+                    let pipValStandard = (this.calc.pairType === 'jpy') ? 9.10 : 10.00;
+                    let lotStd = riskDollars / (this.calc.stopPips * pipValStandard);
+                    if (isNaN(lotStd) || !isFinite(lotStd) || lotStd <= 0) {
+                        return { standard: '0.00', mini: '0.00', micro: '0.00' };
+                    }
+                    return {
+                        standard: lotStd.toFixed(2),
+                        mini: (lotStd * 10).toFixed(2),
+                        micro: (lotStd * 100).toFixed(2)
+                    };
+                },
+
+                calculateExpectancy() {
+                    let winP = this.expectancy.winRate / 100;
+                    let lossP = 1 - winP;
+                    return (winP * this.expectancy.avgWin) - (lossP * this.expectancy.avgLoss);
+                },
+
+                calculateProfitFactor() {
+                    let totalWins = (this.expectancy.winRate / 100) * this.expectancy.avgWin;
+                    let totalLosses = ((100 - this.expectancy.winRate) / 100) * this.expectancy.avgLoss;
+                    if (totalLosses === 0) return '∞';
+                    return (totalWins / totalLosses).toFixed(2);
+                },
+
+                calculateBreakEvenWinRate() {
+                    if ((this.expectancy.avgWin + this.expectancy.avgLoss) === 0) return '0.0';
+                    return ((this.expectancy.avgLoss / (this.expectancy.avgWin + this.expectancy.avgLoss)) * 100).toFixed(1);
+                }
+            }
+        }
+    </script>
+</body>
+</html>
